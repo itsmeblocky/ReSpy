@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html dir="ltr" lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Respy — Devlog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --accent: #ff6b35;
+      --accent2: #ffd166;
+      --blue: #60a5fa;
+      --purple: #c084fc;
+      --green: #4ade80;
+      --r: 22px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      min-height: 100vh;
+      background: #07070d;
+      overflow-x: hidden;
+      color: rgba(255,255,255,0.92);
+    }
+
+    .bg { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+
+    .orb {
+      position: absolute; border-radius: 50%;
+      animation: drift 20s ease-in-out infinite;
+    }
+    .orb-1 {
+      width: 600px; height: 600px;
+      background: radial-gradient(circle, rgba(96,165,250,0.6) 0%, rgba(37,99,235,0.3) 45%, transparent 70%);
+      top: -200px; right: -140px; filter: blur(65px); animation-delay: 0s;
+    }
+    .orb-2 {
+      width: 500px; height: 500px;
+      background: radial-gradient(circle, rgba(192,132,252,0.55) 0%, rgba(126,34,206,0.3) 45%, transparent 70%);
+      bottom: 5%; left: -100px; filter: blur(75px); animation-delay: -8s;
+    }
+    .orb-3 {
+      width: 400px; height: 400px;
+      background: radial-gradient(circle, rgba(255,107,53,0.45) 0%, rgba(220,38,38,0.2) 45%, transparent 70%);
+      top: 42%; right: 15%; filter: blur(80px); animation-delay: -15s;
+    }
+    .orb-4 {
+      width: 320px; height: 320px;
+      background: radial-gradient(circle, rgba(74,222,128,0.4) 0%, rgba(21,128,61,0.2) 45%, transparent 70%);
+      top: 68%; left: 48%; filter: blur(70px); animation-delay: -5s;
+    }
+
+    @keyframes drift {
+      0%,100% { transform: translate(0,0) scale(1); }
+      33%      { transform: translate(-38px,32px) scale(1.05); }
+      66%      { transform: translate(32px,-44px) scale(0.96); }
+    }
+
+    .noise {
+      position: fixed; inset: 0; z-index: 1; pointer-events: none; opacity: 0.03;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='256' height='256'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='256' height='256' filter='url(%23n)'/%3E%3C/svg%3E");
+      background-size: 180px;
+    }
+
+    .page {
+      position: relative; z-index: 2;
+      min-height: 100vh;
+      display: flex; flex-direction: column; align-items: center;
+      padding: 120px 20px 110px;
+    }
+
+    /* ══════════════════════════════════════════
+       LIQUID GLASS NAVBAR — same 4-layer system
+    ══════════════════════════════════════════ */
+    .nav-wrap {
+      position: fixed; top: 14px;
+      left: 50%; transform: translateX(-50%);
+      width: calc(100% - 32px); max-width: 860px;
+      height: 64px; border-radius: var(--r);
+      z-index: 1000; isolation: isolate;
+      animation: navIn 0.9s cubic-bezier(0.34,1.56,0.64,1) both;
+    }
+
+    @keyframes navIn {
+      from { opacity: 0; transform: translateX(-50%) translateY(-28px) scale(0.95); }
+      to   { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+    }
+
+    .nav-effect {
+      position: absolute; inset: 0; border-radius: var(--r);
+      backdrop-filter: url(#lg-distort-dl) blur(18px) saturate(200%) brightness(1.08);
+      -webkit-backdrop-filter: blur(18px) saturate(200%) brightness(1.08);
+      overflow: hidden;
+    }
+
+    .nav-tint {
+      position: absolute; inset: 0; border-radius: var(--r);
+      background: rgba(8, 6, 20, 0.38);
+    }
+
+    .nav-shine {
+      position: absolute; inset: 0; border-radius: var(--r);
+      border: 1px solid rgba(255,255,255,0.22);
+      box-shadow:
+        inset 0 1.5px 0 rgba(255,255,255,0.35),
+        inset 0 -1px 0 rgba(255,255,255,0.04),
+        inset 1px 0 0 rgba(255,255,255,0.07),
+        inset -1px 0 0 rgba(255,255,255,0.07),
+        0 4px 8px rgba(0,0,0,0.15),
+        0 12px 40px rgba(0,0,0,0.3);
+      background:
+        linear-gradient(155deg, rgba(255,255,255,0.14) 0%, rgba(255,255,255,0.05) 25%, transparent 55%),
+        linear-gradient(340deg, rgba(255,255,255,0.06) 0%, transparent 40%);
+      animation: sheen 9s ease-in-out infinite;
+    }
+
+    @keyframes sheen {
+      0%,100% { opacity: 1; }
+      50%      { opacity: 0.75; }
+    }
+
+    .nav-content {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 22px; z-index: 1;
+    }
+
+    .nav-logo { display: flex; align-items: center; gap: 11px; text-decoration: none; }
+    .nav-logo-img {
+      width: 38px; height: 38px; border-radius: 11px;
+      background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.13);
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden; flex-shrink: 0;
+    }
+    .nav-logo-img img { width: 30px; height: 30px; object-fit: contain; }
+    .nav-logo-text { font-size: 16px; font-weight: 700; letter-spacing: -0.02em; color: #fff; }
+
+    .nav-right { display: flex; align-items: center; gap: 4px; }
+    .nav-link {
+      font-size: 13px; font-weight: 500;
+      color: rgba(255,255,255,0.6); text-decoration: none;
+      padding: 6px 13px; border-radius: 10px;
+      transition: background 0.18s, color 0.18s;
+    }
+    .nav-link:hover { background: rgba(255,255,255,0.1); color: #fff; }
+    .nav-link.active { background: rgba(255,255,255,0.1); color: #fff; }
+
+    /* ── glass card base ── */
+    .glass {
+      background: rgba(255,255,255,0.055);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      border: 1px solid rgba(255,255,255,0.13);
+      border-radius: 22px;
+      box-shadow:
+        0 8px 32px rgba(0,0,0,0.3),
+        inset 0 1.5px 0 rgba(255,255,255,0.11),
+        inset 0 -1px 0 rgba(255,255,255,0.03);
+    }
+
+    /* ── page header ── */
+    .page-header {
+      width: 100%; max-width: 860px; margin-bottom: 52px;
+      animation: fadeUp 0.8s cubic-bezier(0.34,1.56,0.64,1) 0.1s both;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(26px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .eyebrow {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 11px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase;
+      color: var(--blue); margin-bottom: 14px;
+    }
+    .eyebrow span { opacity: 0.45; }
+
+    .page-title {
+      font-size: clamp(32px, 5vw, 52px);
+      font-weight: 800; letter-spacing: -0.04em; line-height: 1.06; margin-bottom: 14px;
+      background: linear-gradient(130deg, #fff 0%, rgba(255,255,255,0.8) 40%, var(--blue) 80%, var(--purple) 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+
+    .page-sub {
+      font-size: 15px; color: rgba(255,255,255,0.42);
+      line-height: 1.68; max-width: 540px;
+    }
+
+    /* ── timeline ── */
+    .timeline {
+      width: 100%; max-width: 860px;
+      display: flex; flex-direction: column; gap: 0;
+      animation: fadeUp 0.8s cubic-bezier(0.34,1.56,0.64,1) 0.22s both;
+    }
+
+    .tl-entry {
+      display: grid;
+      grid-template-columns: 120px 1px 1fr;
+      gap: 0 26px;
+      padding-bottom: 38px;
+    }
+    .tl-entry:last-child { padding-bottom: 0; }
+
+    .tl-date { text-align: right; padding-top: 22px; }
+    .tl-date-main { font-size: 13px; font-weight: 600; letter-spacing: -0.01em; color: rgba(255,255,255,0.65); }
+    .tl-date-rel  { font-size: 11px; color: rgba(255,255,255,0.28); margin-top: 3px; }
+
+    .tl-spine { display: flex; flex-direction: column; align-items: center; }
+    .tl-dot {
+      width: 10px; height: 10px; border-radius: 50%;
+      flex-shrink: 0; margin-top: 26px; position: relative; z-index: 1;
+      box-shadow: 0 0 0 3px rgba(255,255,255,0.05);
+    }
+    .tl-line {
+      flex: 1; width: 1px; margin-top: 7px;
+      background: linear-gradient(to bottom, rgba(255,255,255,0.1), rgba(255,255,255,0.02));
+    }
+    .tl-entry:last-child .tl-line { display: none; }
+
+    .tl-card {
+      padding: 22px 26px 24px;
+      transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.3s;
+    }
+    .tl-card:hover {
+      transform: translateX(5px);
+      box-shadow: 0 16px 48px rgba(0,0,0,0.42), inset 0 1.5px 0 rgba(255,255,255,0.16);
+    }
+
+    .tl-card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 14px; flex-wrap: wrap; }
+    .tl-version { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; padding: 4px 11px; border-radius: 8px; }
+
+    .tl-card-title { font-size: 16px; font-weight: 700; letter-spacing: -0.025em; color: rgba(255,255,255,0.92); flex: 1; }
+    .tl-card-body { font-size: 13.5px; color: rgba(255,255,255,0.48); line-height: 1.72; margin-bottom: 18px; }
+
+    .tl-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+    .tag {
+      font-size: 11px; font-weight: 600; letter-spacing: 0.04em;
+      padding: 4px 11px; border-radius: 8px;
+      background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.09); color: rgba(255,255,255,0.45);
+    }
+    .tag-fix     { background: rgba(74,222,128,0.08);  border-color: rgba(74,222,128,0.2);  color: var(--green); }
+    .tag-feat    { background: rgba(96,165,250,0.08);  border-color: rgba(96,165,250,0.2);  color: var(--blue); }
+    .tag-perf    { background: rgba(255,209,102,0.08); border-color: rgba(255,209,102,0.2); color: var(--accent2); }
+    .tag-refactor { background: rgba(192,132,252,0.08); border-color: rgba(192,132,252,0.2); color: var(--purple); }
+    .tag-break   { background: rgba(255,107,53,0.09);  border-color: rgba(255,107,53,0.22); color: var(--accent); }
+
+    .dot-major { background: var(--accent); }
+    .dot-minor { background: var(--blue); }
+    .dot-patch { background: rgba(255,255,255,0.28); }
+
+    .ver-major { background: rgba(255,107,53,0.12); border: 1px solid rgba(255,107,53,0.25); color: var(--accent); }
+    .ver-minor { background: rgba(96,165,250,0.1);  border: 1px solid rgba(96,165,250,0.22); color: var(--blue); }
+    .ver-patch { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.4); }
+
+    .changelog { margin-top: 14px; display: flex; flex-direction: column; gap: 7px; }
+    .cl-item { display: flex; align-items: flex-start; gap: 10px; font-size: 13px; color: rgba(255,255,255,0.52); line-height: 1.6; }
+    .cl-dot { width: 5px; height: 5px; border-radius: 50%; background: rgba(255,255,255,0.22); flex-shrink: 0; margin-top: 7px; }
+
+    .footer { margin-top: 56px; font-size: 12px; color: rgba(255,255,255,0.2); text-align: center; }
+
+    @media (max-width: 560px) {
+      .tl-entry { grid-template-columns: 0 1px 1fr; }
+      .tl-date  { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- SVG displacement filter for the devlog page navbar -->
+  <svg width="0" height="0" style="position:absolute;overflow:hidden;" aria-hidden="true">
+    <defs>
+      <filter id="lg-distort-dl" x="-20%" y="-20%" width="140%" height="140%" color-interpolation-filters="sRGB">
+        <feTurbulence type="fractalNoise" baseFrequency="0.012 0.018" numOctaves="3" seed="14" result="rawNoise"/>
+        <feGaussianBlur in="rawNoise" stdDeviation="3" result="noise"/>
+        <feDisplacementMap in="SourceGraphic" in2="noise" scale="28" xChannelSelector="R" yChannelSelector="G"/>
+      </filter>
+    </defs>
+  </svg>
+
+  <div class="bg">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+    <div class="orb orb-4"></div>
+  </div>
+  <div class="noise"></div>
+
+  <!-- Liquid glass navbar -->
+  <div class="nav-wrap">
+    <div class="nav-effect"></div>
+    <div class="nav-tint"></div>
+    <div class="nav-shine"></div>
+    <div class="nav-content">
+      <a href="respy.html" class="nav-logo">
+        <div class="nav-logo-img">
+          <!-- PASTE YOUR <img> HERE -->
+        </div>
+        <span class="nav-logo-text">Respy</span>
+      </a>
+      <div class="nav-right">
+        <a href="respy.html" class="nav-link">Home</a>
+        <a href="devlog.html" class="nav-link active">Devlog</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="page">
+
+    <div class="page-header">
+      <div class="eyebrow"><span>✦</span> Release history <span>✦</span></div>
+      <h1 class="page-title">Devlog</h1>
+      <p class="page-sub">A running changelog of every Respy update — what changed, what broke, and what got fixed.</p>
+    </div>
+
+    <div class="timeline">
+
+      <div class="tl-entry">
+        <div class="tl-date">
+          <div class="tl-date-main">Jun 2025</div>
+          <div class="tl-date-rel">Latest</div>
+        </div>
+        <div class="tl-spine">
+          <div class="tl-dot dot-major"></div>
+          <div class="tl-line"></div>
+        </div>
+        <div class="tl-card glass">
+          <div class="tl-card-top">
+            <span class="tl-version ver-major">v1.4.0</span>
+            <span class="tl-card-title">Multi-executor support &amp; UI overhaul</span>
+          </div>
+          <div class="tl-card-body">Rewrote the hook layer to work across Solara, Xeno, and other low-UNC executors without needing full metatable access. The UI was rebuilt with a scale-only layout so it fits any resolution cleanly.</div>
+          <div class="changelog">
+            <div class="cl-item"><div class="cl-dot"></div>Added executor detection with automatic hook strategy selection</div>
+            <div class="cl-item"><div class="cl-dot"></div>Rebuilt UI using scale-only sizing — no more off-screen panels on 4K</div>
+            <div class="cl-item"><div class="cl-dot"></div>hookmetamethod fallback for executors without full UNC support</div>
+            <div class="cl-item"><div class="cl-dot"></div>Fixed remote list scroll snapping on large games</div>
+          </div>
+          <div class="tl-tags" style="margin-top:18px;">
+            <span class="tag tag-feat">feature</span>
+            <span class="tag tag-fix">fix</span>
+            <span class="tag tag-refactor">refactor</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="tl-entry">
+        <div class="tl-date">
+          <div class="tl-date-main">Apr 2025</div>
+          <div class="tl-date-rel">2 months ago</div>
+        </div>
+        <div class="tl-spine">
+          <div class="tl-dot dot-patch"></div>
+          <div class="tl-line"></div>
+        </div>
+        <div class="tl-card glass">
+          <div class="tl-card-top">
+            <span class="tl-version ver-patch">v1.3.2</span>
+            <span class="tl-card-title">Hotfix — Roblox engine update compatibility</span>
+          </div>
+          <div class="tl-card-body">Roblox's April engine update changed how RemoteFunction callbacks are stored internally, breaking capture on return values. This patch restores full bidirectional capture.</div>
+          <div class="changelog">
+            <div class="cl-item"><div class="cl-dot"></div>Patched RemoteFunction return value capture after engine update</div>
+            <div class="cl-item"><div class="cl-dot"></div>Fixed nil argument serialization causing output panel crash</div>
+          </div>
+          <div class="tl-tags" style="margin-top:18px;">
+            <span class="tag tag-fix">fix</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="tl-entry">
+        <div class="tl-date">
+          <div class="tl-date-main">Mar 2025</div>
+          <div class="tl-date-rel">3 months ago</div>
+        </div>
+        <div class="tl-spine">
+          <div class="tl-dot dot-minor"></div>
+          <div class="tl-line"></div>
+        </div>
+        <div class="tl-card glass">
+          <div class="tl-card-top">
+            <span class="tl-version ver-minor">v1.3.0</span>
+            <span class="tl-card-title">Argument inspector &amp; filter system</span>
+          </div>
+          <div class="tl-card-body">Added a tree-view argument inspector so you can expand tables and instances inline. Also ships a name-based filter so you can suppress noisy remotes while watching the ones you care about.</div>
+          <div class="changelog">
+            <div class="cl-item"><div class="cl-dot"></div>Tree-view inspector for nested table and Instance arguments</div>
+            <div class="cl-item"><div class="cl-dot"></div>Per-remote whitelist / blacklist filter with regex support</div>
+            <div class="cl-item"><div class="cl-dot"></div>Copy-to-clipboard button on every captured call</div>
+            <div class="cl-item"><div class="cl-dot"></div>Hook overhead reduced ~40% via call batching</div>
+          </div>
+          <div class="tl-tags" style="margin-top:18px;">
+            <span class="tag tag-feat">feature</span>
+            <span class="tag tag-perf">perf</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="tl-entry">
+        <div class="tl-date">
+          <div class="tl-date-main">Jan 2025</div>
+          <div class="tl-date-rel">5 months ago</div>
+        </div>
+        <div class="tl-spine">
+          <div class="tl-dot dot-minor"></div>
+          <div class="tl-line"></div>
+        </div>
+        <div class="tl-card glass">
+          <div class="tl-card-top">
+            <span class="tl-version ver-minor">v1.2.0</span>
+            <span class="tl-card-title">Loadstring distribution &amp; open source release</span>
+          </div>
+          <div class="tl-card-body">Respy goes fully open source. Source and loadstring builds are now hosted on GitHub and linked from the site. Anyone can audit, fork, or submit PRs.</div>
+          <div class="changelog">
+            <div class="cl-item"><div class="cl-dot"></div>Published full source to GitHub under MIT license</div>
+            <div class="cl-item"><div class="cl-dot"></div>Separate loadstring build for one-line injection</div>
+            <div class="cl-item"><div class="cl-dot"></div>Added CONTRIBUTING.md and issue templates</div>
+          </div>
+          <div class="tl-tags" style="margin-top:18px;">
+            <span class="tag tag-feat">feature</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="tl-entry">
+        <div class="tl-date">
+          <div class="tl-date-main">Nov 2024</div>
+          <div class="tl-date-rel">Initial release</div>
+        </div>
+        <div class="tl-spine">
+          <div class="tl-dot dot-major"></div>
+          <div class="tl-line"></div>
+        </div>
+        <div class="tl-card glass">
+          <div class="tl-card-top">
+            <span class="tl-version ver-major">v1.0.0</span>
+            <span class="tl-card-title">Initial release</span>
+          </div>
+          <div class="tl-card-body">First public release of Respy. Basic RemoteEvent and RemoteFunction interception using hookmetamethod, with a minimal floating UI panel.</div>
+          <div class="changelog">
+            <div class="cl-item"><div class="cl-dot"></div>RemoteEvent FireServer / OnClientEvent interception</div>
+            <div class="cl-item"><div class="cl-dot"></div>RemoteFunction InvokeServer capture</div>
+            <div class="cl-item"><div class="cl-dot"></div>Floating output panel with scrollable log</div>
+          </div>
+          <div class="tl-tags" style="margin-top:18px;">
+            <span class="tag tag-feat">feature</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <footer class="footer">Respy — use responsibly. For authorized pentesting only.</footer>
+
+  </div>
+
+</body>
+</html>
