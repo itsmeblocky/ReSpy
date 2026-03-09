@@ -6,6 +6,7 @@
   <title>Respy — Devlog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://raw.githubusercontent.com/archisvaze/liquid-glass/main/index.css">
   <style>
     :root {
       --accent: #ff6b35;
@@ -72,9 +73,6 @@
       padding: 120px 20px 110px;
     }
 
-    /* ══════════════════════════════════════════
-       LIQUID GLASS NAVBAR — same 4-layer system
-    ══════════════════════════════════════════ */
     .nav-wrap {
       position: fixed; top: 14px;
       left: 50%; transform: translateX(-50%);
@@ -91,7 +89,7 @@
 
     .nav-effect {
       position: absolute; inset: 0; border-radius: var(--r);
-      backdrop-filter: url(#lg-distort-dl) blur(18px) saturate(200%) brightness(1.08);
+      backdrop-filter: url(#liquid-glass-filter-dl) blur(18px) saturate(200%) brightness(1.08);
       -webkit-backdrop-filter: blur(18px) saturate(200%) brightness(1.08);
       overflow: hidden;
     }
@@ -148,10 +146,9 @@
     .nav-link:hover { background: rgba(255,255,255,0.1); color: #fff; }
     .nav-link.active { background: rgba(255,255,255,0.1); color: #fff; }
 
-    /* ── glass card base ── */
     .glass {
       background: rgba(255,255,255,0.055);
-      backdrop-filter: blur(20px) saturate(180%);
+      backdrop-filter: url(#liquid-glass-filter-dl) blur(20px) saturate(180%);
       -webkit-backdrop-filter: blur(20px) saturate(180%);
       border: 1px solid rgba(255,255,255,0.13);
       border-radius: 22px;
@@ -161,7 +158,6 @@
         inset 0 -1px 0 rgba(255,255,255,0.03);
     }
 
-    /* ── page header ── */
     .page-header {
       width: 100%; max-width: 860px; margin-bottom: 52px;
       animation: fadeUp 0.8s cubic-bezier(0.34,1.56,0.64,1) 0.1s both;
@@ -191,7 +187,6 @@
       line-height: 1.68; max-width: 540px;
     }
 
-    /* ── timeline ── */
     .timeline {
       width: 100%; max-width: 860px;
       display: flex; flex-direction: column; gap: 0;
@@ -271,10 +266,9 @@
 </head>
 <body>
 
-  <!-- SVG displacement filter for the devlog page navbar -->
   <svg width="0" height="0" style="position:absolute;overflow:hidden;" aria-hidden="true">
     <defs>
-      <filter id="lg-distort-dl" x="-20%" y="-20%" width="140%" height="140%" color-interpolation-filters="sRGB">
+      <filter id="liquid-glass-filter-dl" x="-20%" y="-20%" width="140%" height="140%" color-interpolation-filters="sRGB">
         <feTurbulence type="fractalNoise" baseFrequency="0.012 0.018" numOctaves="3" seed="14" result="rawNoise"/>
         <feGaussianBlur in="rawNoise" stdDeviation="3" result="noise"/>
         <feDisplacementMap in="SourceGraphic" in2="noise" scale="28" xChannelSelector="R" yChannelSelector="G"/>
@@ -290,7 +284,6 @@
   </div>
   <div class="noise"></div>
 
-  <!-- Liquid glass navbar -->
   <div class="nav-wrap">
     <div class="nav-effect"></div>
     <div class="nav-tint"></div>
@@ -298,7 +291,6 @@
     <div class="nav-content">
       <a href="index.html" class="nav-logo">
         <div class="nav-logo-img">
-          <!-- PASTE YOUR <img> HERE -->
         </div>
         <span class="nav-logo-text">Respy</span>
       </a>
