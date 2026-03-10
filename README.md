@@ -11,4 +11,4 @@ This tool was made by LenkaToJaMarcel, but rather likely to be known as blocky.
 
 Thank you for using.
 
-![Respy Logo](https://github.com/MaxonActivegaming666/ReSpy/blob/main/RespyLogo.png?raw=true)
+![Respy Logo](https://github.com/MaxonActivegaming666/ReSpy/blob/main/image_512.png?raw=true)
